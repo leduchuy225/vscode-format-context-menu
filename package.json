@@ -1,106 +1,96 @@
 {
-    "name": "vscode-format-context-menu",
-    "displayName": "Format in context menus",
-    "description": "VSCode extension to format multiple files with right click context menu",
-    "version": "1.0.4",
-    "publisher": "lacroixdavid1",
-    "icon": "assets/icon.png",
-    "author": {
-        "name": "David Lacroix",
-        "email": "lacroix.david1@gmail.com"
-    },
-    "license": "MIT",
-    "keywords": [
-        "format multiple files",
-        "format",
-        "context menu"
-      ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/lacroixdavid1/vscode-format-context-menu.git"
-    },
-    "homepage": "https://github.com/lacroixdavid1/vscode-format-context-menu/blob/master/README.md",
-    "bugs": {
-        "url": "https://github.com/lacroixdavid1/vscode-format-context-menu/issues",
-        "email": "lacroix.david1@gmail.com"
-    },
-    "engines": {
-        "vscode": "^1.25.0"
-    },
-    "categories": [
-        "Other",
-        "Formatters"
-    ],
-    "activationEvents": [
-        "onCommand:extension.formatSelectedFilesFromExplorerContext",
-        "onCommand:extension.formatSelectedFilesFromScmContext",
-        "onCommand:extension.formatSelectedFileFromEditorTileContext"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "configuration": [
-            {
-                "title": "Format From Context Menu",
-                "properties": {
-                    "formatContextMenu.saveAfterFormat": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Save file after formatting.",
-                        "scope": "window"
-                    },
-                    "formatContextMenu.closeAfterSave": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "Close file after saving. This does nothing unless you have enabled saving after formatting.",
-                        "scope": "window"
-                    }
-                }
-            }
-        ],
-        "commands": [
-            {
-                "command": "extension.formatSelectedFilesFromExplorerContext",
-                "title": "Format"
-            },
-            {
-                "command": "extension.formatSelectedFilesFromScmContext",
-                "title": "Format"
-            },
-            {
-                "command": "extension.formatSelectedFileFromEditorTileContext",
-                "title": "Format"
-            }
-        ],
-        "menus": {
-            "explorer/context": [
-                {
-                    "command": "extension.formatSelectedFilesFromExplorerContext"
-                }
-            ],
-            "scm/resourceState/context": [
-                {
-                    "command": "extension.formatSelectedFilesFromScmContext"
-                }
-            ],
-            "editor/title/context": [
-                {
-                    "command": "extension.formatSelectedFileFromEditorTileContext"
-                }
-            ]
+  "name": "vscode-formatter-multiple-files",
+  "displayName": "VSCode Formatter - Multiple files",
+  "description": "VSCode extension to format multiple files with right click context menu",
+  "version": "1.0.5",
+  "icon": "assets/icon.png",
+  "author": {
+    "name": "EL Yuh",
+    "email": "leduchuy220%@gmail.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.82.2"
+  },
+  "categories": [
+    "Other",
+    "Formatters"
+  ],
+  "activationEvents": [
+    "onCommand:extension.formatSelectedFilesFromExplorerContext",
+    "onCommand:extension.formatSelectedFilesFromScmContext",
+    "onCommand:extension.formatSelectedFileFromEditorTileContext"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "configuration": [
+      {
+        "title": "Format From Context Menu",
+        "properties": {
+          "formatContextMenu.saveAfterFormat": {
+            "type": "boolean",
+            "default": true,
+            "description": "Save file after formatting.",
+            "scope": "window"
+          },
+          "formatContextMenu.closeAfterSave": {
+            "type": "boolean",
+            "default": true,
+            "description": "Close file after saving. This does nothing unless you have enabled saving after formatting.",
+            "scope": "window"
+          },
+          "formatContextMenu.excludeFilesFromFormat": {
+            "type": "array",
+            "default": [],
+            "description": "Exclude files matching pattern from formatting.",
+            "scope": "window"
+          }
         }
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && export CODE_TESTS_WORKSPACE=./src/test/workspace && node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.6",
-        "tslint": "^5.8.0",
-        "@types/node": "^7.0.43",
-        "@types/mocha": "^2.2.42"
+      }
+    ],
+    "commands": [
+      {
+        "command": "extension.formatSelectedFilesFromExplorerContext",
+        "title": "Format"
+      },
+      {
+        "command": "extension.formatSelectedFilesFromScmContext",
+        "title": "Format"
+      },
+      {
+        "command": "extension.formatSelectedFileFromEditorTileContext",
+        "title": "Format"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "extension.formatSelectedFilesFromExplorerContext"
+        }
+      ],
+      "scm/resourceState/context": [
+        {
+          "command": "extension.formatSelectedFilesFromScmContext"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "extension.formatSelectedFileFromEditorTileContext"
+        }
+      ]
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && export CODE_TESTS_WORKSPACE=./src/test/workspace && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^7.0.43",
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.37"
+  }
 }
