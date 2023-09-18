@@ -41,12 +41,6 @@
       {
         "title": "Format From Context Menu",
         "properties": {
-          "formatMultipleFiles.closeAfterSeconds": {
-            "type": "integer",
-            "default": 5,
-            "description": "Close file after x seconds. Only work if 'organizeImports = true'",
-            "scope": "window"
-          },
           "formatMultipleFiles.organizeImports": {
             "type": "boolean",
             "default": true,
