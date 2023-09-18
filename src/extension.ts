@@ -7,17 +7,16 @@ export function activate(context: vscode.ExtensionContext) {
   const formatUris = async (uris: vscode.Uri[]) => {
     const vscodeConfig = vscode.workspace.getConfiguration();
 
-    // Getting current settings
-    const saveAfterFormat = vscodeConfig.get('formatContextMenu.saveAfterFormat') as boolean;
-    const closeAfterSave = vscodeConfig.get('formatContextMenu.closeAfterSave') as boolean;
-    // const excludeFiles = vscodeConfig.get('formatContextMenu.excludeFilesFromFormat') as Array<String>;
+    const closeAfterSave = vscodeConfig.get('formatMultipleFiles.closeAfterSave') as boolean;
+    const saveAfterFormat = vscodeConfig.get('formatMultipleFiles.saveAfterFormat') as boolean;
+    const isOrganizeImports = vscodeConfig.get('formatMultipleFiles.organizeImports') as boolean;
 
     const increment = (1 / uris.length) * 100;
 
     const progressOptions: vscode.ProgressOptions = {
-      location: vscode.ProgressLocation.Notification,
+      cancellable: true,
       title: 'Formatting files',
-      cancellable: true
+      location: vscode.ProgressLocation.Notification
     };
 
     vscode.window.withProgress(
@@ -33,14 +32,13 @@ export function activate(context: vscode.ExtensionContext) {
             break;
           }
           try {
-            progress.report({
-              message: `${i + 1}/${uris.length}`
-            });
-            await vscode.window.showTextDocument(uris[i], {
-              preserveFocus: false,
-              preview: true
-            });
+            progress.report({ message: `${i + 1}/${uris.length}` });
 
+            await vscode.window.showTextDocument(uris[i], { preserveFocus: false, preview: true });
+
+            if (isOrganizeImports) {
+              await vscode.commands.executeCommand('editor.action.organizeImports', uri);
+            }
             await vscode.commands.executeCommand('editor.action.formatDocument', uri);
 
             if (saveAfterFormat) {
@@ -52,25 +50,35 @@ export function activate(context: vscode.ExtensionContext) {
           } catch (exception) {
             vscode.window.showWarningMessage(`Could not format file ${uri}`);
           }
-          progress.report({
-            increment: increment
-          });
+          progress.report({ increment: increment });
         }
       }
     );
   };
 
   const getRecursiveUris = async (uris: vscode.Uri[]) => {
-    let outputUris: vscode.Uri[] = [];
+    const outputUris: vscode.Uri[] = [];
+
+    const vscodeConfig = vscode.workspace.getConfiguration();
+    const includeFile = vscodeConfig.get('formatMultipleFiles.includeFilesFromFormat') as string;
+    const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesFromFormat') as string | null;
+
     for (let i = 0; i < uris.length; i++) {
-      if (fs.existsSync(uris[i].fsPath)) {
-        if (fs.lstatSync(uris[i].fsPath).isDirectory()) {
-          outputUris = [...outputUris, ...(await vscode.workspace.findFiles('**​/*.js', '**​/node_modules/**', 10))];
-        } else {
-          outputUris.push(uris[i]);
-        }
+      if (!fs.existsSync(uris[i].fsPath)) {
+        continue;
       }
+      if (!fs.lstatSync(uris[i].fsPath).isDirectory()) {
+        outputUris.push(uris[i]);
+        continue;
+      }
+      outputUris.push(
+        ...(await vscode.workspace.findFiles(
+          { base: uris[i].path, pattern: includeFile },
+          excludeFile ? { base: uris[i].path, pattern: excludeFile } : null
+        ))
+      );
     }
+
     return outputUris;
   };
 

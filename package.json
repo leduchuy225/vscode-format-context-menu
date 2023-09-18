@@ -1,65 +1,77 @@
 {
   "name": "vscode-formatter-multiple-files",
   "displayName": "VSCode Formatter - Multiple files",
-  "description": "VSCode extension to format multiple files with right click context menu",
   "version": "1.0.5",
-  "icon": "assets/icon.png",
-  "author": {
-    "name": "EL Yuh",
-    "email": "leduchuy220%@gmail.com"
-  },
-  "license": "MIT",
-  "engines": {
-    "vscode": "^1.82.2"
-  },
+  "description": "VSCode extension to format multiple files with right click context menu",
   "categories": [
     "Other",
     "Formatters"
   ],
-  "activationEvents": [
-    "onCommand:extension.formatSelectedFilesFromExplorerContext",
-    "onCommand:extension.formatSelectedFilesFromScmContext",
-    "onCommand:extension.formatSelectedFileFromEditorTileContext"
-  ],
+  "repository": "https://github.com/leduchuy225/vscode-format-context-menu",
+  "license": "MIT",
+  "author": {
+    "name": "EL Yuh",
+    "email": "leduchuy220%@gmail.com"
+  },
+  "publisher": "leduchuy225",
   "main": "./out/extension",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && export CODE_TESTS_WORKSPACE=./src/test/workspace && node ./node_modules/vscode/bin/test",
+    "vscode:prepublish": "npm run compile",
+    "watch": "tsc -watch -p ./"
+  },
   "contributes": {
+    "commands": [
+      {
+        "command": "extension.formatSelectedFilesFromExplorerContext",
+        "title": "Format files"
+      },
+      {
+        "command": "extension.formatSelectedFilesFromScmContext",
+        "title": "Format files"
+      },
+      {
+        "command": "extension.formatSelectedFileFromEditorTileContext",
+        "title": "Format files"
+      }
+    ],
     "configuration": [
       {
         "title": "Format From Context Menu",
         "properties": {
-          "formatContextMenu.saveAfterFormat": {
+          "formatMultipleFiles.saveAfterFormat": {
             "type": "boolean",
             "default": true,
             "description": "Save file after formatting.",
             "scope": "window"
           },
-          "formatContextMenu.closeAfterSave": {
+          "formatMultipleFiles.closeAfterSave": {
             "type": "boolean",
             "default": true,
             "description": "Close file after saving. This does nothing unless you have enabled saving after formatting.",
             "scope": "window"
           },
-          "formatContextMenu.excludeFilesFromFormat": {
-            "type": "array",
-            "default": [],
+          "formatMultipleFiles.excludeFilesFromFormat": {
+            "type": "string",
+            "default": null,
             "description": "Exclude files matching pattern from formatting.",
+            "scope": "window"
+          },
+          "formatMultipleFiles.includeFilesFromFormat": {
+            "type": "string",
+            "default": "**/*",
+            "description": "Include files matching pattern when formatting.",
+            "scope": "window"
+          },
+          "formatMultipleFiles.organizeImports": {
+            "type": "bool",
+            "default": true,
+            "description": "Organize import.",
             "scope": "window"
           }
         }
-      }
-    ],
-    "commands": [
-      {
-        "command": "extension.formatSelectedFilesFromExplorerContext",
-        "title": "Format"
-      },
-      {
-        "command": "extension.formatSelectedFilesFromScmContext",
-        "title": "Format"
-      },
-      {
-        "command": "extension.formatSelectedFileFromEditorTileContext",
-        "title": "Format"
       }
     ],
     "menus": {
@@ -80,17 +92,15 @@
       ]
     }
   },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && export CODE_TESTS_WORKSPACE=./src/test/workspace && node ./node_modules/vscode/bin/test"
-  },
+  "activationEvents": [],
   "devDependencies": {
     "@types/mocha": "^2.2.42",
     "@types/node": "^7.0.43",
     "typescript": "^2.6.1",
     "vscode": "^1.1.37"
-  }
+  },
+  "engines": {
+    "vscode": "^1.25.0"
+  },
+  "icon": "assets/icon.png"
 }

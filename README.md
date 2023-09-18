@@ -1,4 +1,4 @@
-# VSCode format in context menus
+<!-- # VSCode format in context menus
 
 This VSCode extension allows the user to format one or multiple files with right-click context menu.
 
@@ -14,5 +14,5 @@ This VSCode extension allows the user to format one or multiple files with right
 
 This extension contributes the following settings:
 
-* `formatContextMenu.saveAfterFormat`: enable/disable saving after formatting (default: `true`).
-* `formatContextMenu.closeAfterSave`: enable/disable closing closing after saving (default: `false`). This does nothing unless you have enabled saving after formatting.
+* `formatMultipleFiles.saveAfterFormat`: enable/disable saving after formatting (default: `true`).
+* `formatMultipleFiles.closeAfterSave`: enable/disable closing closing after saving (default: `false`). This does nothing unless you have enabled saving after formatting. -->

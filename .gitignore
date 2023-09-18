@@ -3,3 +3,5 @@ node_modules
 .vscode-test/
 *.vsix
 yarn.lock
+package-lock.json
+test-format/**

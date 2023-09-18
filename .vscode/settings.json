@@ -2,7 +2,7 @@
 {
     "files.exclude": {
         "out": true,
-        ".vscode-test": true,
+        // ".vscode-test": true,
         // "node_modules": true
     },
     "search.exclude": {
@@ -10,6 +10,5 @@
         ".vscode-test": true,
         "node_modules": true
     },
-
-    "typescript.tsc.autoDetect": "off"
+    "typescript.tsc.autoDetect": "off",
 }

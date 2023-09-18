@@ -1,4 +1,4 @@
-## 1.0.4
+<!-- ## 1.0.4
 - Now shows progression.
 - Now cancellable.
 
@@ -13,4 +13,4 @@
 - Fixed extension `README.md` from vscode extension store.
 
 ## 1.0.0
-- Initial release.
+- Initial release. -->
