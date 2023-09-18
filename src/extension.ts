@@ -4,14 +4,21 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
+  const vscodeConfig = vscode.workspace.getConfiguration();
+
+  const isFormatFiles = vscodeConfig.get('formatMultipleFiles.formatFiles') as boolean;
+  const isOrganizeImports = vscodeConfig.get('formatMultipleFiles.organizeImports') as boolean;
+  const closeAfterSeconds = vscodeConfig.get('formatMultipleFiles.closeAfterSeconds') as number;
+  const includeFile = vscodeConfig.get('formatMultipleFiles.includeFilesFromFormat') as string;
+  const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesFromFormat') as string | null;
+
+  // //Create output channel
+  // let orange = vscode.window.createOutputChannel("Orange");
+
+  // //Write to output.
+  // orange.appendLine("I am a banana.");
+
   const formatUris = async (uris: vscode.Uri[]) => {
-    const vscodeConfig = vscode.workspace.getConfiguration();
-
-    const closeAfterSave = vscodeConfig.get('formatMultipleFiles.closeAfterSave') as boolean;
-    const saveAfterFormat = vscodeConfig.get('formatMultipleFiles.saveAfterFormat') as boolean;
-    const isShowDocument = vscodeConfig.get('formatMultipleFiles.showTextDocument') as boolean;
-    const isOrganizeImports = vscodeConfig.get('formatMultipleFiles.organizeImports') as boolean;
-
     const increment = (1 / uris.length) * 100;
 
     const progressOptions: vscode.ProgressOptions = {
@@ -19,6 +26,16 @@ export function activate(context: vscode.ExtensionContext) {
       title: 'Formatting files',
       location: vscode.ProgressLocation.Notification
     };
+
+    isOrganizeImports && closeAfterSeconds != -1
+      ? vscode.workspace.onDidOpenTextDocument(async (doc) => {
+          const clock = setTimeout(async () => {
+            await doc.save();
+            await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.uri);
+            clearTimeout(clock);
+          }, closeAfterSeconds * 1000);
+        })
+      : null;
 
     vscode.window.withProgress(
       progressOptions,
@@ -31,22 +48,23 @@ export function activate(context: vscode.ExtensionContext) {
           if (cancellationToken.isCancellationRequested) {
             break;
           }
-
           try {
             progress.report({ message: `${i + 1}/${uris.length}` });
+            await vscode.window.showTextDocument(uris[i], { preserveFocus: true, preview: false });
 
-            if (isShowDocument) {
-              await vscode.window.showTextDocument(uris[i], { preserveFocus: false, preview: true });
+            if (isFormatFiles) {
+              await vscode.commands.executeCommand('editor.action.formatDocument', uri);
             }
+
             if (isOrganizeImports) {
+              await vscode.commands.executeCommand('vscode.executeCodeActionProvider', uri).then((data) => {
+                console.log('AHIHI');
+                console.log(data);
+              });
               await vscode.commands.executeCommand('editor.action.organizeImports', uri);
-            }
-            await vscode.commands.executeCommand('editor.action.formatDocument', uri);
-            if (saveAfterFormat) {
+            } else {
               await vscode.commands.executeCommand('workbench.action.files.save', uri);
-              if (closeAfterSave) {
-                await vscode.commands.executeCommand('workbench.action.closeActiveEditor', uri);
-              }
+              await vscode.commands.executeCommand('workbench.action.closeActiveEditor', uri);
             }
           } catch (exception) {
             vscode.window.showWarningMessage(`Could not format file ${uri}`);
@@ -60,10 +78,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   const getRecursiveUris = async (uris: vscode.Uri[]) => {
     const outputUris: vscode.Uri[] = [];
-
-    const vscodeConfig = vscode.workspace.getConfiguration();
-    const includeFile = vscodeConfig.get('formatMultipleFiles.includeFilesFromFormat') as string;
-    const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesFromFormat') as string | null;
 
     for (let i = 0; i < uris.length; i++) {
       if (!fs.existsSync(uris[i].fsPath)) {
@@ -86,20 +100,20 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      'extension.formatSelectedFilesFromScmContext',
+      'extension.formatSelectedFilesFromScmVFMF',
       async (...selectedFiles: vscode.SourceControlResourceState[]) => {
         const uris = await getRecursiveUris(selectedFiles.map((x) => x.resourceUri));
         await formatUris(uris);
       }
     ),
     vscode.commands.registerCommand(
-      'extension.formatSelectedFileFromEditorTileContext',
+      'extension.formatSelectedFileFromEditorTileVFMF',
       async (clickedFile: vscode.Uri) => {
         await formatUris([clickedFile]);
       }
     ),
     vscode.commands.registerCommand(
-      'extension.formatSelectedFilesFromExplorerContext',
+      'extension.formatSelectedFilesFromExplorerVFMF',
       async (clickedFile: vscode.Uri, selectedFiles: vscode.Uri[]) => {
         const uris = await getRecursiveUris(selectedFiles || [clickedFile]);
         await formatUris(uris);

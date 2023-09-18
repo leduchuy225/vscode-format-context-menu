@@ -25,32 +25,38 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.formatSelectedFilesFromExplorerContext",
-        "title": "VF-MF: Format"
+        "command": "extension.formatSelectedFilesFromExplorerVFMF",
+        "title": "VF-MF: Format and Organize imports"
       },
       {
-        "command": "extension.formatSelectedFilesFromScmContext",
-        "title": "VF-MF: Format"
+        "command": "extension.formatSelectedFilesFromScmVFMF",
+        "title": "VF-MF: Format and Organize imports"
       },
       {
-        "command": "extension.formatSelectedFileFromEditorTileContext",
-        "title": "VF-MF: Format"
+        "command": "extension.formatSelectedFileFromEditorTileVFMF",
+        "title": "VF-MF: Format and Organize imports"
       }
     ],
     "configuration": [
       {
         "title": "Format From Context Menu",
         "properties": {
-          "formatMultipleFiles.saveAfterFormat": {
-            "type": "boolean",
-            "default": true,
-            "description": "Save file after formatting.",
+          "formatMultipleFiles.closeAfterSeconds": {
+            "type": "integer",
+            "default": 5,
+            "description": "Close file after x seconds. Only work if 'organizeImports = true'",
             "scope": "window"
           },
-          "formatMultipleFiles.closeAfterSave": {
+          "formatMultipleFiles.organizeImports": {
             "type": "boolean",
             "default": true,
-            "description": "Close file after saving. This does nothing unless you have enabled saving after formatting.",
+            "description": "Organize import.",
+            "scope": "window"
+          },
+          "formatMultipleFiles.formatFiles": {
+            "type": "boolean",
+            "default": true,
+            "description": "Format files.",
             "scope": "window"
           },
           "formatMultipleFiles.excludeFilesFromFormat": {
@@ -64,18 +70,6 @@
             "default": "**/*",
             "description": "Include files matching pattern when formatting.",
             "scope": "window"
-          },
-          "formatMultipleFiles.organizeImports": {
-            "type": "bool",
-            "default": true,
-            "description": "Organize import.",
-            "scope": "window"
-          },
-          "formatMultipleFiles.showTextDocument": {
-            "type": "bool",
-            "default": false,
-            "description": "Show the given document in a text editor.",
-            "scope": "window"
           }
         }
       }
@@ -83,17 +77,17 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "extension.formatSelectedFilesFromExplorerContext"
+          "command": "extension.formatSelectedFilesFromExplorerVFMF"
         }
       ],
       "scm/resourceState/context": [
         {
-          "command": "extension.formatSelectedFilesFromScmContext"
+          "command": "extension.formatSelectedFilesFromScmVFMF"
         }
       ],
       "editor/title/context": [
         {
-          "command": "extension.formatSelectedFileFromEditorTileContext"
+          "command": "extension.formatSelectedFileFromEditorTileVFMF"
         }
       ]
     }

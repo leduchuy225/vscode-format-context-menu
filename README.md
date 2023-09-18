@@ -15,4 +15,4 @@ This VSCode extension allows the user to format one or multiple files with right
 This extension contributes the following settings:
 
 * `formatMultipleFiles.saveAfterFormat`: enable/disable saving after formatting (default: `true`).
-* `formatMultipleFiles.closeAfterSave`: enable/disable closing closing after saving (default: `false`). This does nothing unless you have enabled saving after formatting. -->
+* `formatMultipleFiles.closeAfterSeconds`: enable/disable closing closing after saving (default: `false`). This does nothing unless you have enabled saving after formatting. -->
