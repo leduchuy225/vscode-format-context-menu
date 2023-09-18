@@ -9,6 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const closeAfterSave = vscodeConfig.get('formatMultipleFiles.closeAfterSave') as boolean;
     const saveAfterFormat = vscodeConfig.get('formatMultipleFiles.saveAfterFormat') as boolean;
+    const isShowDocument = vscodeConfig.get('formatMultipleFiles.showTextDocument') as boolean;
     const isOrganizeImports = vscodeConfig.get('formatMultipleFiles.organizeImports') as boolean;
 
     const increment = (1 / uris.length) * 100;
@@ -27,20 +28,20 @@ export function activate(context: vscode.ExtensionContext) {
       ) => {
         for (let i = 0; i < uris.length; i++) {
           const uri = uris[i];
-
           if (cancellationToken.isCancellationRequested) {
             break;
           }
+
           try {
             progress.report({ message: `${i + 1}/${uris.length}` });
 
-            await vscode.window.showTextDocument(uris[i], { preserveFocus: false, preview: true });
-
+            if (isShowDocument) {
+              await vscode.window.showTextDocument(uris[i], { preserveFocus: false, preview: true });
+            }
             if (isOrganizeImports) {
               await vscode.commands.executeCommand('editor.action.organizeImports', uri);
             }
             await vscode.commands.executeCommand('editor.action.formatDocument', uri);
-
             if (saveAfterFormat) {
               await vscode.commands.executeCommand('workbench.action.files.save', uri);
               if (closeAfterSave) {
@@ -50,6 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
           } catch (exception) {
             vscode.window.showWarningMessage(`Could not format file ${uri}`);
           }
+
           progress.report({ increment: increment });
         }
       }

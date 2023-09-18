@@ -26,15 +26,15 @@
     "commands": [
       {
         "command": "extension.formatSelectedFilesFromExplorerContext",
-        "title": "Format files"
+        "title": "VF-MF: Format"
       },
       {
         "command": "extension.formatSelectedFilesFromScmContext",
-        "title": "Format files"
+        "title": "VF-MF: Format"
       },
       {
         "command": "extension.formatSelectedFileFromEditorTileContext",
-        "title": "Format files"
+        "title": "VF-MF: Format"
       }
     ],
     "configuration": [
@@ -69,6 +69,12 @@
             "type": "bool",
             "default": true,
             "description": "Organize import.",
+            "scope": "window"
+          },
+          "formatMultipleFiles.showTextDocument": {
+            "type": "bool",
+            "default": false,
+            "description": "Show the given document in a text editor.",
             "scope": "window"
           }
         }
