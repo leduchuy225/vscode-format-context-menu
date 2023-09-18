@@ -3,6 +3,8 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
+const fakeWholeDocumentRange = new vscode.Range(0, 0, 99999, 0);
+
 export function activate(context: vscode.ExtensionContext) {
   const vscodeConfig = vscode.workspace.getConfiguration();
 
@@ -11,12 +13,6 @@ export function activate(context: vscode.ExtensionContext) {
   const closeAfterSeconds = vscodeConfig.get('formatMultipleFiles.closeAfterSeconds') as number;
   const includeFile = vscodeConfig.get('formatMultipleFiles.includeFilesFromFormat') as string;
   const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesFromFormat') as string | null;
-
-  // //Create output channel
-  // let orange = vscode.window.createOutputChannel("Orange");
-
-  // //Write to output.
-  // orange.appendLine("I am a banana.");
 
   const formatUris = async (uris: vscode.Uri[]) => {
     const increment = (1 / uris.length) * 100;
@@ -27,53 +23,70 @@ export function activate(context: vscode.ExtensionContext) {
       location: vscode.ProgressLocation.Notification
     };
 
-    isOrganizeImports && closeAfterSeconds != -1
-      ? vscode.workspace.onDidOpenTextDocument(async (doc) => {
-          const clock = setTimeout(async () => {
-            await doc.save();
-            await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.uri);
-            clearTimeout(clock);
-          }, closeAfterSeconds * 1000);
-        })
-      : null;
+    const didOpenTextListener =
+      isOrganizeImports && closeAfterSeconds != -1
+        ? vscode.workspace.onDidOpenTextDocument(async (doc) => {
+            const clock = setTimeout(async () => {
+              await doc.save();
+              await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.uri);
+              clearTimeout(clock);
+            }, closeAfterSeconds * 1000);
+          })
+        : null;
 
-    vscode.window.withProgress(
-      progressOptions,
-      async (
-        progress: vscode.Progress<{ message?: string; increment?: number }>,
-        cancellationToken: vscode.CancellationToken
-      ) => {
-        for (let i = 0; i < uris.length; i++) {
-          const uri = uris[i];
-          if (cancellationToken.isCancellationRequested) {
-            break;
-          }
-          try {
-            progress.report({ message: `${i + 1}/${uris.length}` });
-            await vscode.window.showTextDocument(uris[i], { preserveFocus: true, preview: false });
+    vscode.window
+      .withProgress(
+        progressOptions,
+        async (
+          progress: vscode.Progress<{ message?: string; increment?: number }>,
+          cancellationToken: vscode.CancellationToken
+        ) => {
+          for (let i = 0; i < uris.length; i++) {
+            const uri = uris[i];
+            if (cancellationToken.isCancellationRequested) {
+              break;
+            }
+            try {
+              progress.report({ message: `${i + 1}/${uris.length}` });
 
-            if (isFormatFiles) {
-              await vscode.commands.executeCommand('editor.action.formatDocument', uri);
+              if (isFormatFiles) {
+                await vscode.window.showTextDocument(uri, { preserveFocus: true, preview: false });
+                await vscode.commands.executeCommand('editor.action.formatDocument', uri);
+                await vscode.commands.executeCommand('workbench.action.files.save', uri);
+                await vscode.commands.executeCommand('workbench.action.closeActiveEditor', uri);
+              }
+
+              if (isOrganizeImports) {
+                await vscode.workspace.openTextDocument(uri);
+                const kind = vscode.CodeActionKind.SourceOrganizeImports;
+                await vscode.commands
+                  .executeCommand<vscode.CodeAction[]>(
+                    'vscode.executeCodeActionProvider',
+                    uri,
+                    fakeWholeDocumentRange,
+                    kind.value
+                  )
+                  .then((data) => {
+                    if (!data) {
+                      return;
+                    }
+                    return data.find((item) => (item.kind ? kind.contains(item.kind) : false));
+                  })
+                  .then(tryApplyCodeAction);
+              }
+            } catch (exception) {
+              vscode.window.showWarningMessage(`Could not format file ${uri}`);
             }
 
-            if (isOrganizeImports) {
-              await vscode.commands.executeCommand('vscode.executeCodeActionProvider', uri).then((data) => {
-                console.log('AHIHI');
-                console.log(data);
-              });
-              await vscode.commands.executeCommand('editor.action.organizeImports', uri);
-            } else {
-              await vscode.commands.executeCommand('workbench.action.files.save', uri);
-              await vscode.commands.executeCommand('workbench.action.closeActiveEditor', uri);
-            }
-          } catch (exception) {
-            vscode.window.showWarningMessage(`Could not format file ${uri}`);
+            progress.report({ increment: increment });
           }
-
-          progress.report({ increment: increment });
         }
-      }
-    );
+      )
+      .then(() => {
+        if (didOpenTextListener) {
+          didOpenTextListener.dispose();
+        }
+      });
   };
 
   const getRecursiveUris = async (uris: vscode.Uri[]) => {
@@ -97,6 +110,18 @@ export function activate(context: vscode.ExtensionContext) {
 
     return outputUris;
   };
+
+  async function tryApplyCodeAction(action: vscode.CodeAction | undefined) {
+    if (!action) {
+      return;
+    }
+    if (action.edit && action.edit.size > 0) {
+      await vscode.workspace.applyEdit(action.edit);
+    }
+    if (action.command) {
+      await vscode.commands.executeCommand(action.command.command, ...(action.command.arguments || []));
+    }
+  }
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
