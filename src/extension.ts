@@ -6,14 +6,14 @@ import * as fs from 'fs';
 const fakeWholeDocumentRange = new vscode.Range(0, 0, 99999, 0);
 
 export function activate(context: vscode.ExtensionContext) {
-  const vscodeConfig = vscode.workspace.getConfiguration();
-
-  const isFormatFiles = vscodeConfig.get('formatMultipleFiles.formatFiles') as boolean;
-  const isOrganizeImports = vscodeConfig.get('formatMultipleFiles.organizeImports') as boolean;
-  const includeFile = vscodeConfig.get('formatMultipleFiles.includeFilesFromFormat') as string;
-  const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesFromFormat') as string | null;
-
   const formatUris = async (uris: vscode.Uri[]) => {
+    const vscodeConfig = vscode.workspace.getConfiguration();
+
+    const isFormatFiles = vscodeConfig.get('formatMultipleFiles.formatFiles') as boolean;
+    const isOrganizeImports = vscodeConfig.get('formatMultipleFiles.organizeImports') as boolean;
+
+    const isAutoClosed = uris.length > 1;
+
     const increment = (1 / uris.length) * 100;
 
     const progressOptions: vscode.ProgressOptions = {
@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
       location: vscode.ProgressLocation.Notification
     };
 
-    vscode.window.withProgress(
+    await vscode.window.withProgress(
       progressOptions,
       async (
         progress: vscode.Progress<{ message?: string; increment?: number }>,
@@ -40,16 +40,21 @@ export function activate(context: vscode.ExtensionContext) {
               await vscode.window.showTextDocument(uri, { preserveFocus: true, preview: false });
               await vscode.commands.executeCommand('editor.action.formatDocument', uri);
               await vscode.commands.executeCommand('workbench.action.files.save', uri);
-              await vscode.commands.executeCommand('workbench.action.closeActiveEditor', uri);
+
+              if (isAutoClosed) {
+                await vscode.commands.executeCommand('workbench.action.closeActiveEditor', uri);
+              }
             }
 
             if (isOrganizeImports) {
               const didOpenTextListener = vscode.workspace.onDidChangeTextDocument(async (doc) => {
-                await doc.document.save();
                 if (doc.document.isClosed) {
                   return;
                 }
-                await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.document.uri);
+                await doc.document.save();
+                if (isAutoClosed) {
+                  await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.document.uri);
+                }
               });
 
               const doc = await vscode.workspace.openTextDocument(uri);
@@ -86,6 +91,11 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const getRecursiveUris = async (uris: vscode.Uri[]) => {
+    const vscodeConfig = vscode.workspace.getConfiguration();
+
+    const includeFile = vscodeConfig.get('formatMultipleFiles.includeFilesPattern') as string;
+    const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesPattern') as string | null;
+
     const outputUris: vscode.Uri[] = [];
 
     for (let i = 0; i < uris.length; i++) {

@@ -1,19 +1,30 @@
 {
-  "name": "vscode-formatter-multiple-files",
+  "name": "vscode-multiple-files-formatter",
   "displayName": "VSCode Formatter - Multiple files",
-  "version": "1.0.5",
-  "description": "VSCode extension to format multiple files with right click context menu",
+  "version": "0.0.4",
+  "description": "VSCode extension to format files and organize imports with right click context menu",
   "categories": [
     "Other",
     "Formatters"
   ],
-  "repository": "https://github.com/leduchuy225/vscode-format-context-menu",
+  "keywords": [
+    "format multiple files",
+    "format",
+    "organize imports",
+    "context menu",
+    "organize",
+    "organize import multiple files"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leduchuy225/vscode-format-context-menu"
+  },
   "license": "MIT",
   "author": {
     "name": "EL Yuh",
     "email": "leduchuy220%@gmail.com"
   },
-  "publisher": "leduchuy225",
+  "publisher": "ELYuh-tool",
   "main": "./out/extension",
   "scripts": {
     "compile": "tsc -p ./",
@@ -44,25 +55,25 @@
           "formatMultipleFiles.organizeImports": {
             "type": "boolean",
             "default": true,
-            "description": "Organize import.",
+            "description": "Turn on/off organize import feature.",
             "scope": "window"
           },
           "formatMultipleFiles.formatFiles": {
             "type": "boolean",
             "default": true,
-            "description": "Format files.",
+            "description": "Turn on/off format files feature.",
             "scope": "window"
           },
-          "formatMultipleFiles.excludeFilesFromFormat": {
+          "formatMultipleFiles.excludeFilesPattern": {
             "type": "string",
             "default": null,
-            "description": "Exclude files matching pattern from formatting.",
+            "description": "Exclude files matching pattern.",
             "scope": "window"
           },
-          "formatMultipleFiles.includeFilesFromFormat": {
+          "formatMultipleFiles.includeFilesPattern": {
             "type": "string",
             "default": "**/*",
-            "description": "Include files matching pattern when formatting.",
+            "description": "Include files matching pattern.",
             "scope": "window"
           }
         }
