@@ -1,7 +1,7 @@
 {
   "name": "vscode-multiple-files-formatter",
   "displayName": "VSCode Formatter - Multiple files",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "VSCode extension to format files and organize imports with right click context menu",
   "categories": [
     "Other",

@@ -39,6 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
             progress.report({ message: `${i + 1}/${uris.length}` });
 
             if (isFormatFiles) {
+              // CHECK
               await vscode.window.showTextDocument(uri, { preserveFocus: true, preview: false });
               await vscode.commands.executeCommand('editor.action.formatDocument', uri);
               await vscode.commands.executeCommand('workbench.action.files.save', uri);
@@ -49,15 +50,15 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             if (isOrganizeImports) {
-              const didOpenTextListener = isAutoClosed
-                ? vscode.workspace.onDidChangeTextDocument(async (doc) => {
-                    await doc.document.save();
-                    if (doc.document.isClosed) {
-                      return;
-                    }
-                    await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.document.uri);
-                  })
-                : undefined;
+              const didOpenTextListener = vscode.workspace.onDidChangeTextDocument(async (doc) => {
+                await doc.document.save();
+                if (doc.document.isClosed) {
+                  return;
+                }
+                if (isAutoClosed) {
+                  await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.document.uri);
+                }
+              });
 
               await vscode.workspace.openTextDocument(uri);
               const kind = vscode.CodeActionKind.SourceOrganizeImports;
@@ -76,9 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
                 })
                 .then(tryApplyCodeAction)
                 .then(() => {
-                  if (didOpenTextListener) {
-                    didOpenTextListener.dispose();
-                  }
+                  didOpenTextListener.dispose();
                 });
             }
           } catch (exception) {
