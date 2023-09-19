@@ -14,6 +14,8 @@ export function activate(context: vscode.ExtensionContext) {
   const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesPattern') as string | null;
 
   const formatUris = async (uris: vscode.Uri[]) => {
+    const isAutoClosed = uris.length > 1;
+
     const increment = (1 / uris.length) * 100;
 
     const progressOptions: vscode.ProgressOptions = {
@@ -40,17 +42,23 @@ export function activate(context: vscode.ExtensionContext) {
               await vscode.window.showTextDocument(uri, { preserveFocus: true, preview: false });
               await vscode.commands.executeCommand('editor.action.formatDocument', uri);
               await vscode.commands.executeCommand('workbench.action.files.save', uri);
-              await vscode.commands.executeCommand('workbench.action.closeActiveEditor', uri);
+
+              if (isAutoClosed) {
+                await vscode.commands.executeCommand('workbench.action.closeActiveEditor', uri);
+              }
             }
 
             if (isOrganizeImports) {
-              const didOpenTextListener = vscode.workspace.onDidChangeTextDocument(async (doc) => {
-                await doc.document.save();
-                if (doc.document.isClosed) {
-                  return;
-                }
-                await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.document.uri);
-              });
+              const didOpenTextListener = isAutoClosed
+                ? vscode.workspace.onDidChangeTextDocument(async (doc) => {
+                    await doc.document.save();
+                    if (doc.document.isClosed) {
+                      return;
+                    }
+                    await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.document.uri);
+                  })
+                : undefined;
+
               await vscode.workspace.openTextDocument(uri);
               const kind = vscode.CodeActionKind.SourceOrganizeImports;
               await vscode.commands
@@ -68,7 +76,9 @@ export function activate(context: vscode.ExtensionContext) {
                 })
                 .then(tryApplyCodeAction)
                 .then(() => {
-                  didOpenTextListener.dispose();
+                  if (didOpenTextListener) {
+                    didOpenTextListener.dispose();
+                  }
                 });
             }
           } catch (exception) {

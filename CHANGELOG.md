@@ -1,16 +1,11 @@
-<!-- ## 1.0.4
-- Now shows progression.
-- Now cancellable.
+## 0.0.3
 
-## 1.0.3
-- Added a setting to close files after saving.
+- Keep file opened if formatting a single file
 
-## 1.0.2
-- Added demo in `README.md`.
-- Fixes formatting files from SCM when some deleted files are selected.
+## 0.0.2
 
-## 1.0.1
-- Fixed extension `README.md` from vscode extension store.
+- Update package information.
 
-## 1.0.0
-- Initial release. -->
+## 0.0.1
+
+- Initial release.
