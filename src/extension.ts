@@ -51,12 +51,16 @@ export function activate(context: vscode.ExtensionContext) {
                 }
                 await vscode.commands.executeCommand('workbench.action.closeActiveEditor', doc.document.uri);
               });
-              await vscode.workspace.openTextDocument(uri);
+
+              const doc = await vscode.workspace.openTextDocument(uri);
+              if (!doc) {
+                return;
+              }
               const kind = vscode.CodeActionKind.SourceOrganizeImports;
               await vscode.commands
                 .executeCommand<vscode.CodeAction[]>(
                   'vscode.executeCodeActionProvider',
-                  uri,
+                  doc.uri,
                   fakeWholeDocumentRange,
                   kind.value
                 )
