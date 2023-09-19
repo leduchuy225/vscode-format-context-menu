@@ -10,8 +10,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   const isFormatFiles = vscodeConfig.get('formatMultipleFiles.formatFiles') as boolean;
   const isOrganizeImports = vscodeConfig.get('formatMultipleFiles.organizeImports') as boolean;
-  const includeFile = vscodeConfig.get('formatMultipleFiles.includeFilesFromFormat') as string;
-  const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesFromFormat') as string | null;
+  const includeFile = vscodeConfig.get('formatMultipleFiles.includeFilesPattern') as string;
+  const excludeFile = vscodeConfig.get('formatMultipleFiles.excludeFilesPattern') as string | null;
 
   const formatUris = async (uris: vscode.Uri[]) => {
     const increment = (1 / uris.length) * 100;
